@@ -59,6 +59,10 @@ Route::delete('/repos/{repo}', function (Repo $repo) {
     return redirect('/my-repos')->with('success_message', 'Repo was deleted!');
 })->middleware('auth');
 
+Route::get('create-access-token', function () {
+    return view('personal-access-token');
+})->name('create-access-token');
+
 
 
 require __DIR__.'/auth.php';
