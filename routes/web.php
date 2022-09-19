@@ -37,6 +37,7 @@ Route::get('/repos/{repo:name}', function (Repo $repo) {
 });
 
 Route::post('/repos', function (Request $request) {
+
     $request->validate([
         'name' => 'required|alpha_dash|unique:repos|min:3',
         'description' => 'required|min:3',
@@ -59,9 +60,21 @@ Route::delete('/repos/{repo}', function (Repo $repo) {
     return redirect('/my-repos')->with('success_message', 'Repo was deleted!');
 })->middleware('auth');
 
-Route::get('create-access-token', function () {
-    return view('personal-access-token');
-})->name('create-access-token');
+Route::middleware('auth')->group(function () {
+    Route::get('create-access-token', function () {
+        return view('personal-access-token');
+    })->name('create-access-token');
+
+    Route::post('create-access-token', function (Request $request) {
+        $request->validate(['token_name' => 'required']);
+        $ability = $request->ability ?? ["*"];
+        $token = $request->user()->createToken($request->token_name, $ability);
+
+        return redirect()->back()->with('message', "The token $token->plainTextToken was created successfully");
+
+    })->name('create-token');
+});
+
 
 
 
